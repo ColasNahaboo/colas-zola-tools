@@ -67,4 +67,4 @@ table1:
     baz: bat
 ```
 
-See? Especially for people like me with a Unix culture, the YAML format seems both more natural (resembling the format of email or HTTP headers), and TOML has a repulsive Windows flavor. Add to this that most of the tools I use understand natively YAML frontmatter but not TOML, and the decision is easy.
+See? Especially for people like me with a Unix culture, the YAML format seems both more natural (resembling the format of email or HTTP headers, the use of indentation à la Python), and TOML has a repulsive Windows flavor. Add to this that most of the tools I use understand natively YAML frontmatter but not TOML, and the decision is easy.
