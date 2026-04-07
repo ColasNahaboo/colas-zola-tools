@@ -1,0 +1,71 @@
+#!/bin/bash
+# shellcheck disable=SC2155 # declare&assign
+
+USAGE="site-toml2yaml md-files or directories...
+Converts in place the frontmatter of Markdown files from TOML to YAML.
+It recurses in directories, but looking only for \*.md files and sub-dirs.
+Without argument, run on ${ZOLA_ROOT}/content/
+Should work on any Markdown files with TOML frontmatter.
+
+You should only run it on your content/ dir normally. For instance running it
+on your themes/ dir will risk messing your imported themes
+
+WARNING: it modifies the files in place, so MAKE A BACKUP before running it!
+v1.0.0, 2026-04-07, © 2006 Colas Nahaboo, MIT license
+"
+[[ $1 =~ ^-[h?] ]] && { echo "$USAGE"; exit 0;}
+
+err(){ echo "***Error: $*" >&2; exit 1;}
+warn(){ echo "Warning: $*" >&2;}
+nl=$'\n'
+command -v dasel >/dev/null || err "dasel required!"
+
+if [[ $# == 0 ]]; then
+    cd "${ZOLA_ROOT:-Please-define-env-var-ZOLA_ROOT}" || exit 1
+    set content
+fi
+
+convert-file(){
+    local file="$1" lead=$(head -1 "$1") toml yaml np
+    np=$(grep -cx +++ "$file")
+    if ((np == 1)); then
+        warn "Only one +++ line in $file, skipped"
+        return
+    elif ((np == 0)); then
+        warn "No +++ line in $file, skipped"
+        return
+    fi
+    if [[ "$lead" == '---' ]]; then : # already in yaml, ignore silently
+    elif [[ "$lead" == '+++' ]]; then
+        toml=$(sed -n '/+++/,/+++/p' "$file" | sed 's/+++//g')
+        yaml=$(dasel -r toml -w yaml <<<"$toml") || err "dasel failed on $file"
+        [[ -z "$yaml" ]] && err "no yaml for $file"
+        echo "---${nl}${yaml}${nl}---" >"$file.new"
+        # Append everything after the second +++
+        sed '1,/+++/d' "$file" >> "$file.new"
+        mv "$file.new" "$file"
+        echo "  Converted $file"
+    else
+        warn "File $file has no frontmatter, skipped"
+    fi
+}
+
+convert-dir(){
+    local d="$1" i
+    while read -r i; do
+        [[ "$i" == "$d" ]] && continue
+        if [[ -d "$i" ]]; then
+            convert-dir "$i"
+        else
+            convert-file "$i"
+        fi
+    done < <(find "$d" -type f -name \*.md)
+}
+
+for i in "$@"; do
+    if [[ -d "$i" ]]; then
+        convert-dir "$i"
+    else
+        convert-file "$i"
+    fi
+done
