@@ -8,7 +8,7 @@ All my personal site management tools start with the prefix `site-` for taking a
 
 Since [Zola](https://www.getzola.org/) now supports frontmatter in its markdown pages in the [YAML](https://yaml.org/) format in addition to the original [TOML](https://toml.io/), I decided to migrate all my pages to YAML, as it is both easier to read and write for humans, and natively understood by a majority of tools (Emacs, marktext, obsidian, vs-code, typos, zettlt...)
 
-So I wrote a small bash script for the conversion, `site-toml2yaml` (all my personal site management tools start with the prefix `site-` for taking advantage of the tab-completion. 
+So I wrote a small bash script for the conversion, `site-toml2yaml` (all my personal site management tools start with the prefix `site-` for taking advantage of the tab-completion). 
 It should run on any Linux or Unix system, and it requires [dasel](https://github.com/TomWright/dasel) and the usual gang: grep, sed, head...
 
 Note that you could also use **[hugo convert](https://gohugo.io/commands/hugo_convert/)**, but I haven't tested it.
